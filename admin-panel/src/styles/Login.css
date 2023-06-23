@@ -1,0 +1,11 @@
+.FormContainer {
+    height: 100%;
+}
+
+.FormContainer h1 {
+    text-align: center;
+}
+
+.LoginFormButton {
+    width: 100%;
+}

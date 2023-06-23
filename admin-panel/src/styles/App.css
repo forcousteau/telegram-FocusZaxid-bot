@@ -1,0 +1,10 @@
+@import '~antd/dist/antd.css';
+@import '~handsontable/dist/handsontable.full.css';
+
+.App {
+    height: 100%;
+}
+
+#hot-display-license-info {
+    display: none;
+}

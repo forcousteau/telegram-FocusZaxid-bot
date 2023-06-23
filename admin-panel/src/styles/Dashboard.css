@@ -1,0 +1,28 @@
+.Logo {
+    height: 30px;
+    margin: 15px;
+    text-align: center;
+}
+
+.Logo img {
+    height: 30px;
+}
+
+.Logo h1 {
+    color: #fff;
+    text-align: center;
+    margin-left: 10px;
+    margin-bottom: 0;
+}
+
+.SignOutButton {
+    margin: 0 10px 0 0;
+}
+
+.NotificationTexts label {
+    display: block;
+}
+
+.NotificationTexts input {
+    min-width: 285px;
+}
