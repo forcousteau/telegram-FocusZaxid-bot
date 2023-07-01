@@ -23,6 +23,8 @@ export async function addWorkShiftAction(data: {
   objectId: number;
   location?: string;
   car?: boolean;
+  carId?: number;
+  carFee?: number;
   businessTrip?: boolean;
   createdAt?: Date;
 }, params?: { pool: Pool }) {
@@ -43,6 +45,8 @@ export async function addWorkShiftActionChecked(data: {
   objectId: number;
   location?: string;
   car?: boolean;
+  carId?: number;
+  carFee?: number;
   businessTrip?: boolean;
 }) {
   const lastWorkShiftAction = await getLastWorkShiftActionByEmployeeId(data.employeeId);

@@ -11,5 +11,5 @@ export const createPositionCategory = async (name: string): Promise<void> => {
 };
 
 export const editPositionCategory = async (id: number, data: Partial<IPositionCategory>): Promise<void> => {
-  await api.post('/positionCategories/edit', { id, data });
+  await api.put('/positionCategories', { id, data });
 };

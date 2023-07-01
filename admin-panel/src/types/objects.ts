@@ -7,4 +7,6 @@ export interface IObject {
   isActive: boolean;
   contractorId: number | null;
   contractorName: string | null;
+  isDriveCompensated: boolean;
+  distanceInKM: number;
 }

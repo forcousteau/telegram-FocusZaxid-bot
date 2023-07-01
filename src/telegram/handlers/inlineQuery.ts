@@ -1,5 +1,6 @@
 import { getActiveObjectsByRegionId, sendObjects } from '../../services/objects';
 import { getEmployeeByChatId } from '../../services/employees';
+import { getCarsByFuelType, sendCars } from '../../services/cars';
 
 const InlineQueryHandlers = {
   init: bot => {
@@ -9,11 +10,10 @@ const InlineQueryHandlers = {
 
       const query = ctx.update.inline_query.query.split('>');
 
-      const [objectSearchData] = [...query].reverse();
-      const [regionId, ...searchQueryArr] = objectSearchData.split(' ');
-      const searchQuery = searchQueryArr.join(' ');
-
       if (query[0] == 'regionId') {
+        const [objectSearchData] = [...query].reverse();
+        const [regionId, ...searchQueryArr] = objectSearchData.split(' ');
+        const searchQuery = searchQueryArr.join(' ');
         let objects = await getActiveObjectsByRegionId(regionId);
         objects.sort((a, b) => {
           if (a.city.localeCompare(b.city) > 0) {
@@ -40,6 +40,12 @@ const InlineQueryHandlers = {
 
         await sendObjects(ctx, objects);
       }
+      if (query[0] == 'fuelType') {
+        const [fuelType] = [...query].reverse();
+        let cars = await getCarsByFuelType(fuelType);
+
+        await sendCars(ctx, cars);
+      }
     });
 
     bot.on('chosen_inline_result', async ctx => {
@@ -48,7 +54,16 @@ const InlineQueryHandlers = {
         switch (query.split('>')[1]) {
           case 'open': {
             ctx.session.openWorkShift.objectId = result_id;
-            await ctx.scene.enter('openWorkShift/getBusinessTrip');
+            await ctx.scene.enter('openWorkShift/getCar');
+          }
+        }
+      }
+      if (query.split('>')[0] == 'fuelType') {
+        switch (query.split('>')[1]) {
+          case 'open': {
+            ctx.session.openWorkShift.carId = result_id;
+
+            await ctx.scene.enter('openWorkShift/getLocation');
           }
         }
       }

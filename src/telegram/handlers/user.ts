@@ -45,7 +45,7 @@ const UserHandlers = {
           objectId: workShiftAction.objectId,
           businessTrip: workShiftAction.businessTrip,
         };
-        await ctx.scene.enter('closeWorkShift/getCar');
+        await ctx.scene.enter('closeWorkShift/getBusinessTrip');
       });
     });
 

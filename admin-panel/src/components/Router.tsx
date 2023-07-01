@@ -20,6 +20,7 @@ import AuthContext from '../contexts/AuthContext';
 import AppealsTable from './Dashboard/Appeals/AppealsTable';
 import WorkingHoursChangesTable from './Dashboard/WorkingHoursChangesTable/WorkingHoursChangesTable';
 import InteractiveTable from './Dashboard/InteractiveTable/InteractiveTable';
+import CarsTable from './Dashboard/CarsTable/CarsTable';
 
 const Router: React.FC = () => {
   const { authorized, adminRole } = useContext(AuthContext);
@@ -58,6 +59,11 @@ const Router: React.FC = () => {
 		<ProtectedRoute exact path="/objects" authorized={authorized} component={() =>
 		  <Dashboard>
 			<ObjectsTable/>
+		  </Dashboard>
+		}/>
+		<ProtectedRoute exact path="/cars" authorized={authorized} component={() =>
+		  <Dashboard>
+			<CarsTable/>
 		  </Dashboard>
 		}/>
 		<ProtectedRoute exact path="/appeals" authorized={authorized} component={() =>

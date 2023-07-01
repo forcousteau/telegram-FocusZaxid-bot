@@ -69,11 +69,19 @@ const Queries = {
     objects: {
       byId: 'select * from objects where id = $1',
       forAdminPanel:
-        'select objects.id, objects.city, objects.address, objects."isActive", regions.name as "regionName", regions.id as "regionId", contractors.id as "contractorId", contractors."fullName" as "contractorName" from objects inner join regions on objects."regionId" = regions.id left join contractors on objects."contractorId" = contractors.id',
+        'select objects.id, objects.city, objects.address, objects."isActive", objects."isDriveCompensated", objects."distanceInKM", regions.name as "regionName", regions.id as "regionId", contractors.id as "contractorId", contractors."fullName" as "contractorName" from objects inner join regions on objects."regionId" = regions.id left join contractors on objects."contractorId" = contractors.id',
       uniqueCities: 'select distinct city from objects order by city',
       byCity: 'select * from objects where city = $1',
       byRegionId: 'select * from objects where "regionId" = $1',
       activeByRegionId: 'select * from objects where "regionId" = $1 and "isActive" = true',
+    },
+    cars: {
+      activeById: 'select * from cars where id = $1 and "isActive" = true',
+      active: 'select * from cars where "isActive" = true',
+      activeByFuelType: 'select * from cars where cars."fuelType" = $1 AND "isActive" = true order by cars."name"',
+      forAdminPanel:
+        'select * from cars order by "createdAt" desc',
+      fuelTypes: 'select distinct cars."fuelType" from cars where "isActive" = true order by cars."fuelType"'
     },
     appeals: {
       all: 'select appeals.id, appeals.message, appeals."createdAt", employees."fullName", employees."phoneNumber" from appeals inner join employees on appeals."employeeId" = employees.id order by appeals."createdAt" desc',
@@ -124,7 +132,7 @@ const Queries = {
   insert: {
     webadmin: 'insert into webadmins (username, password, "roleId") values ($1, $2, $3)',
     region: 'insert into regions (name, price) values ($1, $2)',
-    object: 'insert into objects ("regionId", city, address, "contractorId") values ($1, $2, $3, $4)',
+    object: 'insert into objects ("regionId", city, address, "contractorId", "isDriveCompensated", "distanceInKM") values ($1, $2, $3, $4, $5, $6)',
     appeal: 'insert into appeals (message, "employeeId") values ($1, $2)',
     positionCategory: 'insert into "positionCategories" (name) values ($1)',
     position: 'insert into positions ("positionCategoryId", name, price) values ($1, $2, $3)',

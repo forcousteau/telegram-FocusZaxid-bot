@@ -6,10 +6,12 @@ export async function addObject(data: {
   city: string;
   address: string;
   contractorId: number | null;
+  isDriveCompensated: boolean;
+  distanceInKM: number;
 }) {
-  const { regionId, city, address, contractorId } = data;
+  const { regionId, city, address, contractorId, isDriveCompensated, distanceInKM } = data;
   const pool = DB.getPool();
-  const res = await pool.query(Queries.insert.object, [regionId, city, address, contractorId]);
+  const res = await pool.query(Queries.insert.object, [regionId, city, address, contractorId, isDriveCompensated, distanceInKM]);
 }
 
 export async function getObjectsForAdminPanel() {
@@ -22,6 +24,12 @@ export async function getActiveObjectsByRegionId(regionId: string) {
   const pool = DB.getPool();
   const res = await pool.query(Queries.select.objects.activeByRegionId, [regionId]);
   return res.rows;
+}
+
+export async function getObjectById(objectId: number | string) {
+  const pool = DB.getPool();
+  const res = await pool.query(Queries.select.objects.byId, [objectId]);
+  return res.rows[0];
 }
 
 export async function updateObject(

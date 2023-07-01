@@ -1,5 +1,6 @@
 import regionsHandlers from '../handlers/regions';
 import objectsHandlers from '../handlers/objects';
+import carsHandlers from '../handlers/cars';
 import positionCategoriesHandlers from '../handlers/positionCategories';
 import positionsHandlers from '../handlers/positions';
 import employeesHandlers from '../handlers/employees';
@@ -53,6 +54,11 @@ const Routes = {
     router.post('/api/objects', this.getAuthCheckedHandler(objectsHandlers.create));
     router.get('/api/objects', this.getAuthCheckedHandler(objectsHandlers.read));
     router.put('/api/objects', this.getAuthCheckedHandler(objectsHandlers.update));
+
+    /*** Cars ***/
+    router.post('/api/cars', this.getAuthCheckedHandler(carsHandlers.create));
+    router.get('/api/cars', this.getAuthCheckedHandler(carsHandlers.read));
+    router.put('/api/cars', this.getAuthCheckedHandler(carsHandlers.update));
 
     /*** Contractors ***/
     router.post('/api/contractors', this.getAuthCheckedHandler(contractorsHandlers.create));

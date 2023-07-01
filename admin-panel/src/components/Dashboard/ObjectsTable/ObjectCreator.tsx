@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, InputNumber, message, Modal, Select } from 'antd';
 
-import { fetchPositionCategories } from '../../../api/positionCategories';
-import { IPositionCategory } from '../../../types/positionCategories';
-import { createPosition } from '../../../api/positions';
 import { IRegion } from '../../../types/regions';
 import { fetchRegions } from '../../../api/regions';
 import { createObject } from '../../../api/objects';
@@ -44,9 +41,9 @@ const ObjectCreator: React.FC<IProps> = (props) => {
 	}
   };
 
-  const onSubmit = async ({ regionId, city, address, contractorId }: any) => {
+  const onSubmit = async ({ regionId, city, address, contractorId, isDriveCompensated, distanceInKM}: any) => {
 	try {
-	  await createObject(regionId, city, address ?? '', contractorId);
+	  await createObject(regionId, city, address ?? '', contractorId, isDriveCompensated, distanceInKM );
 	  message.success('Об\'єкт успішно створено!');
 
 	  form.resetFields();
@@ -124,7 +121,6 @@ const ObjectCreator: React.FC<IProps> = (props) => {
 		<Form.Item
 		  name="contractorId"
 		  label="Виконроб"
-		  initialValue="Не задано"
 		>
 		  <Select
 			placeholder="Оберіть виконроба об'єкту"
@@ -141,6 +137,50 @@ const ObjectCreator: React.FC<IProps> = (props) => {
 			  })
 			}
 		  </Select>
+		</Form.Item>
+		<Form.Item
+		  name="isDriveCompensated"
+		  label="Доплата за доїзд"
+		  rules={[
+			{
+			  required: true,
+			  message: 'Необхідно вибрати значення!'
+			}
+		  ]}
+		  >
+            <Select
+              loading={loading}
+              notFoundContent="Не вдалося отримати інформацію"
+			  placeholder="Чи оплачується відстань до об`єкта"
+            >
+              {
+                // @ts-ignore
+                <Select.Option key={'isDriveCompensated'} value={true}>
+                  Так
+                </Select.Option>
+              }
+			  {
+                // @ts-ignore
+                <Select.Option key={'isDriveCompensated'} value={false}>
+                  Ні
+                </Select.Option>
+              }
+            </Select>
+		</Form.Item>
+		<Form.Item
+		  name="distanceInKM"
+		  label="Відстань (км)"
+		  rules={[
+			{
+			  required: true,
+			  message: 'Необхідно ввести відстань!'
+			}
+		  ]}
+		>
+		  <InputNumber
+			min={0}
+			placeholder="Відстань"
+		  />
 		</Form.Item>
 	  </Form>
 	</Modal>

@@ -1,22 +1,27 @@
 import { isObject } from '../../services/functions';
-import { addObject, getObjectsForAdminPanel, updateObject } from '../../services/objects';
+import { addCar, getCarsForAdminPanel, updateCar } from '../../services/cars';
 
 const handlers = {
   create: async ctx => {
-    const { regionId, city, address, contractorId, isDriveCompensated, distanceInKM } = ctx.request.body;
+    const {
+        name,
+        fuelType,
+        fuelConsumption,
+        isCompanyProperty,
+        isActive 
+    } = ctx.request.body;
 
-    if (!regionId || !city || typeof address !== 'string') {
+    if (!name || !fuelType || !fuelConsumption || typeof fuelConsumption !== 'number') {
       return (ctx.status = 400);
     }
 
     try {
-      await addObject({
-        regionId,
-        city,
-        address,
-        contractorId,
-        isDriveCompensated,
-        distanceInKM
+      await addCar({
+        name,
+        fuelType,
+        fuelConsumption,
+        isCompanyProperty,
+        isActive 
       });
       ctx.status = 200;
     } catch (err) {
@@ -26,10 +31,10 @@ const handlers = {
   },
   read: async ctx => {
     try {
-      const objects = await getObjectsForAdminPanel();
+      const cars = await getCarsForAdminPanel();
       ctx.status = 200;
       const body = {
-        objects,
+        cars,
       };
       ctx.body = body;
     } catch (err) {
@@ -45,7 +50,7 @@ const handlers = {
     }
 
     try {
-      await updateObject(id, data);
+      await updateCar(id, data);
       ctx.status = 200;
     } catch (err) {
       console.error(err);

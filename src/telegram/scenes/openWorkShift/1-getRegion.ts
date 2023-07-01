@@ -9,7 +9,7 @@ const Markup = require('telegraf/markup');
 const scene: IScene = new Scene('openWorkShift/getRegion');
 
 scene.backScene = WorkShiftMessage;
-scene.nextScene = 'openWorkShift/getBusinessTrip';
+scene.nextScene = 'openWorkShift/getCar';
 
 scene.enter(async (ctx: any) => {
   ctx.session.openWorkShift = {};

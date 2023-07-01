@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 
 import {
   AuditOutlined,
+  CarOutlined,
   CoffeeOutlined,
   ControlOutlined,
   FormOutlined,
@@ -65,6 +66,11 @@ const Dashboard: React.FC = (props) => {
 	  icon: <FullscreenOutlined/>,
 	  url: '/objects'
 	},
+	{
+		text: 'Автомобілі',
+		icon: <CarOutlined/>,
+		url: '/cars'
+	  },
 	{
 	  text: 'Перевірки',
 	  icon: <ZoomInOutlined/>,
@@ -140,7 +146,7 @@ const Dashboard: React.FC = (props) => {
 			  <img src="logo.png" alt="Logo"/>
 			</Col>
 			<Col span={menuCollapsed ? 0 : 'auto'}>
-			  <h1>Terraprof Admin</h1>
+			  <h1>FocusZaxid Logger</h1>
 			</Col>
 		  </Row>
 		</div>
