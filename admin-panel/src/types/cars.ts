@@ -10,6 +10,7 @@ export interface ICar {
  export enum FuelType {
     PETROL = 'petrol',
     DIESEL = 'diesel',
-    GAS = 'gas'
+    GAS = 'gas',
+    ELECTRO = 'electro'
   }
   

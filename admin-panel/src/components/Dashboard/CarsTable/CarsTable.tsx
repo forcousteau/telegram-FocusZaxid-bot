@@ -24,6 +24,10 @@ const CarsTable: React.FC = () => {
       text: "Газ",
       value: FuelType.GAS,
     },
+    {
+      text: "Електро",
+      value: FuelType.ELECTRO,
+    },
   ];
   const { adminRole } = useContext(AuthContext);
   const { writeAccess } = adminRole;

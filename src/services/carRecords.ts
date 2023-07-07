@@ -14,7 +14,7 @@ export async function insertCarRecord(data: {
     const destinationObject = await getObjectById(data.objectId);
     const distance = destinationObject.distanceInKM;
     const vars = await getVars();
-    const fuelPrice = vars.find(elem => elem.name === car.rows[0].fuelType + 'Price').value;
+    const fuelPrice = vars.find(elem => elem.name === car.rows[0].fuelType + 'Price').value || 0;
     const fuelConsumption = car.rows[0].fuelConsumption;
     const suspensionPrice = vars.find(elem => elem.name === 'suspensionPrice').value;
 

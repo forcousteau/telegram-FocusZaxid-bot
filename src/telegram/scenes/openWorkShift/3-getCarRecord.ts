@@ -1,6 +1,6 @@
 import IScene from "../../typings/scene";
 import { getInlineKeyboardWithBackButton } from "../../helpers/keyboards";
-import { getFuelTypes } from "../../../services/cars";
+import { fuelTypesWithName, getFuelTypes } from "../../../services/cars";
 
 
 const Scene = require("telegraf/scenes/base");
@@ -33,7 +33,7 @@ scene.action(/^passenger>/, async (ctx: any) => {
   if (isPassenger === "false") {
     const fuelTypes = await getFuelTypes();
     const buttons = fuelTypes.map(fuelType => {
-      return Markup.switchToCurrentChatButton(fuelType.fuelType, 'fuelType>open>' + fuelType.fuelType);
+      return Markup.switchToCurrentChatButton(fuelTypesWithName[fuelType.fuelType] || fuelType.fuelType, 'fuelType>open>' + fuelType.fuelType);
     });
     const keyboard = await getInlineKeyboardWithBackButton(buttons, 2);
   

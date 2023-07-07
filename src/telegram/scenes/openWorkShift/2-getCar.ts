@@ -46,6 +46,7 @@ scene.action(/^lviv>/, async (ctx: any) => {
       break;
     }
     case 'false': {
+      scene.nextScene = 'openWorkShift/getLocation';
       ctx.session.openWorkShift.car = false;
       break;
     }

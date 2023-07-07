@@ -1,6 +1,13 @@
 import DB from '../db/index';
 import Queries from '../queries/queries';
 
+export const fuelTypesWithName = {
+  diesel: 'Дизель',
+  gas: 'Газ',
+  petrol: 'Бензин',
+  electro: 'Електро'
+}
+
 export async function addCar(data: {
     name?: string;
     fuelType?: string;
