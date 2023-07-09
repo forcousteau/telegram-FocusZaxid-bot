@@ -339,7 +339,7 @@ export const groupByTravelDate = (carRecords, month) => {
         if(!monthData[travelDay]){
           monthData[travelDay] = {
             dayDistance: Number(distance) + Number(distance),
-            dayFuelPrice: fuelPrice
+            dayFuelPrice: Number(fuelPrice)
           };
         } else {
           monthData[travelDay].dayDistance += Number(distance) + Number(distance);      

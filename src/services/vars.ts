@@ -35,3 +35,19 @@ export async function updateVar(
   });
   const res = await pool.query(query, values);
 }
+
+export async function updateVarByName(
+  data: {
+    name: string;
+    value?: string;
+  }
+) {
+  const pool = DB.getPool();
+  const { columns, values } = Queries.convertObjectToColumnsAndValues({value: data.value});
+  const query = Queries.build.update({
+    tableName: 'vars',
+    columns,
+    where: `name = '${data.name}'`,
+  });
+  await pool.query(query, values);
+}

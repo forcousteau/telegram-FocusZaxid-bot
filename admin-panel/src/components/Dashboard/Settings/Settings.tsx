@@ -186,6 +186,13 @@ const Settings: React.FC = () => {
           >
             <InputNumber min={0} />
           </Form.Item>
+          <Form.Item
+            label="Останнє автоматичне оновлення палива"
+          >
+            <text>{
+              vars?.find((v) => v.name === "lastFuelUpdate")?.value
+            }</text>
+          </Form.Item>
         </Form>
       </Modal>
     </div>
