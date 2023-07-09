@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import moment from 'moment';
+import moment, { months } from 'moment';
 import DB from '../db/index';
 import Queries from '../queries/queries';
 import WorkShiftActionType from '../enums/WorkShiftActionType';
@@ -8,10 +8,10 @@ import { getWorkingHoursChangesByMonth, getWorkingHoursChangesByChatIdAndMonth }
 
 const HOURS_DECIMAL_PLACES = 2;
 
-function getCarReportDays(workShiftsActions) {
-  return workShiftsActions.filter(
-    workShiftAction => workShiftAction.typeId === WorkShiftActionType.CLOSE && workShiftAction.car
-  ).length;
+function getCarFeeSumForReport(workShiftsActions) {
+  return workShiftsActions
+  .filter(workShiftAction => workShiftAction.carFee)
+  .reduce((acc, cur) =>acc + cur.carFee, 0);
 }
 
 function getHours(timestamp1, timestamp2) {
@@ -21,7 +21,7 @@ function getHours(timestamp1, timestamp2) {
 }
 
 export async function getReportsByWorkShiftsActions(workShiftsActions, workingHoursChanges) {
-  const carReportDays = getCarReportDays(workShiftsActions);
+  const carFeeSumForReport = getCarFeeSumForReport(workShiftsActions);
   const reports = [];
 
   /**
@@ -61,6 +61,11 @@ export async function getReportsByWorkShiftsActions(workShiftsActions, workingHo
                 : moment(workShiftAction.createdAt).startOf('day').toDate()
             );
 
+      const carFee = 
+      workShiftAction.typeId === WorkShiftActionType.OPEN
+          ? Number(workShiftAction.carFee) || 0
+          : Number(workShiftAction.carFee) + Number(workShiftActionPrev.carFee)
+              
       if (!_.isNil(hours)) {
         const workingHoursChange = workingHoursChanges.find(
           workingHoursChange =>
@@ -84,7 +89,8 @@ export async function getReportsByWorkShiftsActions(workShiftsActions, workingHo
           reports.push(
             _.assign({}, workShiftAction, {
               workedDayDate,
-              carReportDays,
+              carFee,
+              carFeeSumForReport,
               hours: workingHoursChange.workingHoursAfter,
               wasChanged: true,
             })
@@ -98,7 +104,8 @@ export async function getReportsByWorkShiftsActions(workShiftsActions, workingHo
             _.assign({}, workShiftAction, {
               workedDayDate,
               hours,
-              carReportDays,
+              carFee,
+              carFeeSumForReport,
             })
           );
         }
@@ -165,6 +172,8 @@ export const getAdditionalPaymentsValues = additionalPayments =>
 
 // Get total hours by reports
 export const getHoursTotal = reports => reports.reduce((accum, report) => accum + report.hours, 0);
+
+export const getCarFeeTotal = reports => reports.reduce((accum, report) => accum + Number(report.carFee), 0);
 
 // Get business trip payment of the reports
 export const getBusinessTripPayment = reports =>
@@ -259,6 +268,7 @@ export function consolidateReportsByDays(reports) {
         const consolidatedReport = reportsByEmployeeByObjectByWorkedDay.reduce((consolidatedReport, report) => ({
           ...consolidatedReport,
           hours: consolidatedReport.hours + report.hours,
+          carFee: consolidatedReport.carFee + report.carFee
         }));
 
         consolidatedReportsByDays.push({
@@ -317,3 +327,39 @@ export const groupByEmployees = arr =>
       accum[employeeId].push(item);
       return accum;
     }, {});
+
+export const groupByTravelDate = (carRecords, month) => {
+
+      return carRecords
+      .reduce((monthData, record) => {
+        const { fuelPrice, distance , travelDate} = record;
+    
+        const travelDay = travelDate.getDate() - 1;
+    
+        if(!monthData[travelDay]){
+          monthData[travelDay] = {
+            dayDistance: Number(distance) + Number(distance),
+            dayFuelPrice: fuelPrice
+          };
+        } else {
+          monthData[travelDay].dayDistance += Number(distance) + Number(distance);      
+        }
+        return monthData;
+      }, new Array(getDaysNumberInMonth(month)).fill(null));
+}
+
+export const groupCarRecordsByCarId = (carRecords, key ='carId') => {
+  return carRecords.reduce((acc, cur) => {
+    (acc[cur[key]] = acc[cur[key]] || []).push(cur);
+    return acc;
+  }, {});
+};
+
+export const groupCarRecordsFullPriceByKey = (carRecords, key = 'objectId') => {
+  return carRecords.reduce((acc, cur) => {
+    acc[cur[key]] = acc[cur[key]]
+      ? acc[cur[key]] + cur.travelFullPrice
+      : cur.travelFullPrice;
+    return acc;
+  }, {});
+};  

@@ -83,6 +83,28 @@ const Queries = {
         'select * from cars order by "createdAt" desc',
       fuelTypes: 'select distinct cars."fuelType" from cars where "isActive" = true order by cars."fuelType"'
     },
+    carRecords: {
+      forTableByDays: `
+        select "carRecords".id as "carRecordId",
+              "carId",
+              "objectId",
+              "employeeId",
+              "fuelPrice",
+              "suspensionPrice",
+              "carRecords"."fuelConsumption",
+              distance,
+              "travelDate",
+              c.name          as "carName",
+              c."fuelType"    as "carFuelType",
+              "isCompanyProperty",
+              "isActive"
+        from "carRecords"
+                left join cars c on c.id = "carRecords"."carId"
+        where extract(year from "travelDate") = $1
+          and extract(month from "travelDate") = $2
+        order by "travelDate", "objectId"
+      `
+    },
     appeals: {
       all: 'select appeals.id, appeals.message, appeals."createdAt", employees."fullName", employees."phoneNumber" from appeals inner join employees on appeals."employeeId" = employees.id order by appeals."createdAt" desc',
       byMonth:
@@ -97,12 +119,72 @@ const Queries = {
         'select * from "workShiftsActions" where "employeeId" = $1 and extract(year from "createdAt") = $2 and extract(month from "createdAt") = $3 and extract(day from "createdAt") = $4 order by "createdAt", "typeId"',
       byDateAndEmployeeIdAndObjectId:
         'select * from "workShiftsActions" where "employeeId" = $1 and "objectId" = $2 and extract(year from "createdAt") = $3 and extract(month from "createdAt") = $4 and extract(day from "createdAt") = $5 order by "createdAt", "typeId"',
-      forTable:
-        'select "workShiftsActions".id, "typeId", "employeeId", "createdAt", "workShiftsActions".location, car, "businessTrip", "workShiftsTypes".name as "workShiftTypeName", employees."fullName", employees."phoneNumber", employees."identificationCode", positions.name as "positionName", positions.price as "positionPrice", regions.price as "regionPrice", organisations.name as "organisationName", contractors.id as "contractorId", contractors."fullName" as "contractorName", objects.city as "objectCity", objects.address as "objectAddress" from "workShiftsActions" inner join "workShiftsTypes" on "workShiftsActions"."typeId" = "workShiftsTypes".id inner join employees on "workShiftsActions"."employeeId" = employees.id inner join positions on employees."positionId" = "positions".id left join organisations on employees."organisationId" = organisations.id inner join objects on "workShiftsActions"."objectId" = objects.id left join contractors on objects."contractorId" = contractors.id inner join regions on objects."regionId" = regions.id where extract(year from "createdAt") = $1 and extract(month from "createdAt") = $2 order by "createdAt" desc, "typeId" desc',
-      forTableByDays:
-        'select "workShiftsActions".id, "typeId", "employeeId", "createdAt", car, "businessTrip", employees."fullName", employees."phoneNumber", employees."identificationCode", positions.name as "positionName", positions.price as "positionPrice", regions.price as "regionPrice", organisations.name as "organisationName", contractors.id as "contractorId", contractors."fullName" as "contractorName", objects.id as "objectId", objects.city as "objectCity", objects.address as "objectAddress" from "workShiftsActions" inner join employees on "workShiftsActions"."employeeId" = employees.id inner join positions on employees."positionId" = "positions".id left join organisations on employees."organisationId" = organisations.id inner join objects on "workShiftsActions"."objectId" = objects.id left join contractors on objects."contractorId" = contractors.id inner join regions on objects."regionId" = regions.id where extract(year from "createdAt") = $1 and extract(month from "createdAt") = $2 order by "createdAt", "typeId"',
+      forTable:`
+      select "workShiftsActions".id,
+            "typeId",
+            "employeeId",
+            "workShiftsActions"."createdAt" as "createdAt",
+            "workShiftsActions".location,
+            "carFee",
+            cv.name                       as "carName",
+            "businessTrip",
+            "workShiftsTypes".name          as "workShiftTypeName",
+            employees."fullName",
+            employees."phoneNumber",
+            employees."identificationCode",
+            positions.name                  as "positionName",
+            positions.price                 as "positionPrice",
+            regions.price                   as "regionPrice",
+            organisations.name              as "organisationName",
+            contractors.id                  as "contractorId",
+            contractors."fullName"          as "contractorName",
+            objects.city                    as "objectCity",
+            objects.address                 as "objectAddress"
+      from "workShiftsActions"
+              inner join "workShiftsTypes" on "workShiftsActions"."typeId" = "workShiftsTypes".id
+              inner join employees on "workShiftsActions"."employeeId" = employees.id
+              inner join positions on employees."positionId" = "positions".id
+              left join organisations on employees."organisationId" = organisations.id
+              inner join objects on "workShiftsActions"."objectId" = objects.id
+              left join contractors on objects."contractorId" = contractors.id
+              inner join regions on objects."regionId" = regions.id
+              left join (select id, name from cars) as cv on "workShiftsActions"."carId" = cv.id
+      where extract(year from "createdAt") = $1
+        and extract(month from "createdAt") = $2
+      order by "createdAt" desc, "typeId" desc
+      `,
+      forTableByDays: `
+        select "workShiftsActions".id,
+            "typeId",
+            "employeeId",
+            "createdAt",
+            "carFee",
+            "businessTrip",
+            employees."fullName",
+            employees."phoneNumber",
+            employees."identificationCode",
+            positions.name         as "positionName",
+            positions.price        as "positionPrice",
+            regions.price          as "regionPrice",
+            organisations.name     as "organisationName",
+            contractors.id         as "contractorId",
+            contractors."fullName" as "contractorName",
+            objects.id             as "objectId",
+            objects.city           as "objectCity",
+            objects.address        as "objectAddress"
+      from "workShiftsActions"
+              inner join employees on "workShiftsActions"."employeeId" = employees.id
+              inner join positions on employees."positionId" = "positions".id
+              left join organisations on employees."organisationId" = organisations.id
+              inner join objects on "workShiftsActions"."objectId" = objects.id
+              left join contractors on objects."contractorId" = contractors.id
+              inner join regions on objects."regionId" = regions.id
+      where extract(year from "createdAt") = $1
+        and extract(month from "createdAt") = $2
+      order by "createdAt", "typeId"
+        `,
       forTableByEmployee:
-        'select "workShiftsActions".id, "typeId", "employeeId", "createdAt", car, "businessTrip", employees."fullName", employees."phoneNumber", employees."identificationCode", positions.name as "positionName", positions.price as "positionPrice", regions.price as "regionPrice", organisations.name as "organisationName", contractors.id as "contractorId", contractors."fullName" as "contractorName", objects.id as "objectId", objects.city as "objectCity", objects.address as "objectAddress" from "workShiftsActions" inner join employees on "workShiftsActions"."employeeId" = employees.id inner join positions on employees."positionId" = "positions".id left join organisations on employees."organisationId" = organisations.id inner join objects on "workShiftsActions"."objectId" = objects.id left join contractors on objects."contractorId" = contractors.id inner join regions on objects."regionId" = regions.id where "chatId" = $1 and extract(year from "createdAt") = $2 and extract(month from "createdAt") = $3 order by "createdAt", "typeId"',
+        'select "workShiftsActions".id, "typeId", "employeeId", "createdAt", "carFee", "businessTrip", employees."fullName", employees."phoneNumber", employees."identificationCode", positions.name as "positionName", positions.price as "positionPrice", regions.price as "regionPrice", organisations.name as "organisationName", contractors.id as "contractorId", contractors."fullName" as "contractorName", objects.id as "objectId", objects.city as "objectCity", objects.address as "objectAddress" from "workShiftsActions" inner join employees on "workShiftsActions"."employeeId" = employees.id inner join positions on employees."positionId" = "positions".id left join organisations on employees."organisationId" = organisations.id inner join objects on "workShiftsActions"."objectId" = objects.id left join contractors on objects."contractorId" = contractors.id inner join regions on objects."regionId" = regions.id where "chatId" = $1 and extract(year from "createdAt") = $2 and extract(month from "createdAt") = $3 order by "createdAt", "typeId"',
       lastOpened:
         'select "workShiftsActions".*, employees."chatId" from "workShiftsActions" inner join (select distinct first_value("workShiftsActions".id) over (partition by "employeeId" order by "createdAt" desc, "typeId" desc) as id from "workShiftsActions") "workShiftsActionsLast" on "workShiftsActions".id = "workShiftsActionsLast".id inner join employees on "employeeId" = employees.id where "typeId" = 1',
     },

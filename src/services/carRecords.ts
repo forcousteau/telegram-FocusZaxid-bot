@@ -31,3 +31,15 @@ export async function insertCarRecord(data: {
   }
 
 }
+
+export async function getCarRecordsByMonth(year: number, month: number) {
+  const pool = DB.getPool();
+  const {rows} = await pool.query(Queries.select.carRecords.forTableByDays, [year, month + 1]);
+
+  return rows.map(carRecord => {
+    carRecord.fuelFullPrice = (Number(carRecord.distance) * 2) * (Number(carRecord.fuelConsumption) / 100) * Number(carRecord.fuelPrice);
+    carRecord.suspensionFullPrice = (Number(carRecord.distance) * 2) * Number(carRecord.suspensionPrice);
+    carRecord.travelFullPrice = carRecord.fuelFullPrice + carRecord.suspensionFullPrice;
+    return carRecord;
+  });
+}

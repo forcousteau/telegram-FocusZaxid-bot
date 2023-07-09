@@ -17,6 +17,8 @@ import {
   getReportsByObjectsColumns,
   getReportsByEmployeeColumns,
   getReportsByEmployeesColumns,
+  getCarRecordsColumns,
+  cellsArray,
 } from '../columns';
 import {
   getSalary,
@@ -30,7 +32,15 @@ import {
   groupByEmployees,
   groupByObjects,
   groupByObjectsByEmployees,
+  getCarFeeTotal,
+  groupByTravelDate,
+  groupCarRecordsByCarId,
+  groupCarRecordsFullPriceByKey
 } from '../../services/reports';
+
+import { getCarRecordsByMonth } from '../../services/carRecords'
+import { getDaysNumberInMonth } from '../../services/functions';
+import { fuelTypesWithName } from '../../services/cars';
 
 export async function getReportsByEmployeeTable(chatId: number, year: number, month: number) {
   const reports = await getReportsByEmployee(chatId, year, month);
@@ -41,7 +51,15 @@ export async function getReportsByEmployeeTable(chatId: number, year: number, mo
 
   const reportsByObjects = groupByObjects(reports);
 
-  const data = _.map(reportsByObjects, reportsByObject => [
+  const data = _.map(reportsByObjects, reportsByObject => {
+    const carFeeTotal = getCarFeeTotal(reportsByObject);
+    const businessTripPayment = getBusinessTripPayment(reportsByObject);
+    const salary = getSalary(reportsByObject);
+    const fullSalary = carFeeTotal + businessTripPayment + salary;
+    const additionalPaymentValues = getAdditionalPaymentsValues(additionalPayments);
+    const fullPay = fullSalary - Number(additionalPaymentValues[0]) - Number(additionalPaymentValues[1]) + Number(additionalPaymentValues[2]) + Number(additionalPaymentValues[3]) - Number(additionalPaymentValues[4]);
+
+    return [
     reportsByObject[0].objectName,
     null,
     ...getDatesHours(reportsByObject, month).map(report => {
@@ -55,10 +73,13 @@ export async function getReportsByEmployeeTable(chatId: number, year: number, mo
     }),
     null,
     getHoursTotal(reportsByObject),
-    getBusinessTripPayment(reportsByObject),
-    getSalary(reportsByObject),
-    ...getAdditionalPaymentsValues(additionalPayments),
-  ]);
+    carFeeTotal,
+    businessTripPayment,
+    salary,
+    fullSalary,
+    ...additionalPaymentValues,
+    fullPay
+  ]});
 
   // Generate .xlsx table and return it
   const columns = getReportsByEmployeeColumns(year, month);
@@ -107,9 +128,10 @@ export async function getReportsByDaysTable(year: number, month: number) {
       getHoursTotal(reportsByObjectByEmployee),
       getBusinessTripPayment(reportsByObjectByEmployee),
       getSalary(reportsByObjectByEmployee),
+      getCarFeeTotal(reportsByObjectByEmployee),
       reportsByObjectByEmployee[0].businessTripPaymentTotal,
       reportsByObjectByEmployee[0].salaryTotal,
-      reportsByObjectByEmployee[0].carReportDays,
+      reportsByObjectByEmployee[0].carFeeSumForReport,
       ...getAdditionalPaymentsValues(
         additionalPayments.filter(
           additionalPayment => additionalPayment.employeeId === reportsByObjectByEmployee[0].employeeId
@@ -135,26 +157,29 @@ export async function getReportsByEmployeesTable(year: number, month: number) {
 
   const reportsByEmployees = groupByEmployees(reports);
 
-  // Get payment for a day with a car
-  const carDayPaymentVar = await getVarByName('carDayPayment');
-  const carDayPayment = carDayPaymentVar ? +carDayPaymentVar.value : null;
-
-  const data = _.map(reportsByEmployees, reportsByEmployee => [
-    reportsByEmployee[0].phoneNumber,
-    reportsByEmployee[0].organisationName,
-    reportsByEmployee[0].identificationCode,
-    reportsByEmployee[0].fullName,
-    reportsByEmployee[0].positionName,
-    reportsByEmployee[0].positionPrice,
-    getHoursTotal(reportsByEmployee),
-    reportsByEmployee[0].businessTripPaymentTotal,
-    reportsByEmployee[0].salaryTotal,
-    reportsByEmployee[0].carReportDays,
-    carDayPayment && reportsByEmployee[0].carReportDays ? carDayPayment * reportsByEmployee[0].carReportDays : '',
-    ...getAdditionalPaymentsValues(
-      additionalPayments.filter(additionalPayment => additionalPayment.employeeId === reportsByEmployee[0].employeeId)
-    ),
-  ]).sort((item1, item2) => item1[3].localeCompare(item2[3]));
+  const data = _
+    .map(reportsByEmployees, reportsByEmployee => {
+      const additionalPaymentValues = getAdditionalPaymentsValues(
+        additionalPayments.filter(additionalPayment => additionalPayment.employeeId === reportsByEmployee[0].employeeId))
+      const salary = reportsByEmployee[0].carFeeSumForReport + reportsByEmployee[0].businessTripPaymentTotal + reportsByEmployee[0].salaryTotal;
+      const fullPay = salary - Number(additionalPaymentValues[0]) - Number(additionalPaymentValues[1]) + Number(additionalPaymentValues[2]) + Number(additionalPaymentValues[3]) - Number(additionalPaymentValues[4]);
+      return [
+        reportsByEmployee[0].phoneNumber,
+        reportsByEmployee[0].organisationName,
+        reportsByEmployee[0].identificationCode,
+        reportsByEmployee[0].fullName,
+        reportsByEmployee[0].positionName,
+        reportsByEmployee[0].positionPrice,
+        getHoursTotal(reportsByEmployee),
+        reportsByEmployee[0].carFeeSumForReport,
+        reportsByEmployee[0].businessTripPaymentTotal,
+        reportsByEmployee[0].salaryTotal,
+        salary,
+        ...additionalPaymentValues,
+        fullPay
+      ]
+    })
+    .sort((item1, item2) => item1[3].localeCompare(item2[3]));
 
   // Generate .xlsx table and return it
   const columns = getReportsByEmployeesColumns();
@@ -216,8 +241,10 @@ export async function getReportsByContractorsTable(year: number, month: number) 
           }),
           null,
           getHoursTotal(reportsByEmployee),
+          getCarFeeTotal(reportsByEmployee),
           getBusinessTripPayment(reportsByEmployee),
           getSalary(reportsByEmployee),
+          reportsByEmployee[0].carFeeSumForReport,
         ];
 
         // Push employee data to the array of all employees data
@@ -242,16 +269,66 @@ export async function getReportsByContractorsTable(year: number, month: number) 
   return workbook.outputAsync();
 }
 
+export async function getReportsByCarRecordsTable(year: number, month: number) {
+  const carRecordsByMonth = await getCarRecordsByMonth(year, month)
+  const carRecordsByCar = await groupCarRecordsByCarId(carRecordsByMonth);
+
+  const dataByObjects = _.map(carRecordsByCar, carRecord =>{
+    const fullDistance = carRecord.reduce((partialSum, record) => partialSum + record.distance + record.distance , 0);
+    const suspensionFullPrice = carRecord.reduce((partialSum, record) => partialSum + record.suspensionFullPrice, 0);
+    const fuelFullPrice = carRecord.reduce((partialSum, record) => partialSum + record.fuelFullPrice, 0);
+    const travelFullPrice = suspensionFullPrice + fuelFullPrice;
+   return [
+    carRecord[0].carName,
+    carRecord[0].isCompanyProperty ? 'Так' : 'Ні',
+    fuelTypesWithName[carRecord[0].carFuelType] || carRecord[0].carFuelType,
+    carRecord[0].fuelConsumption,
+    null,
+    ...groupByTravelDate(carRecord, month).flatMap(rec => rec?.dayDistance? [rec?.dayDistance+ ' км', rec?.dayFuelPrice+' грн',]: ['', '']),
+    null,
+    fullDistance,
+    suspensionFullPrice,
+    fuelFullPrice,
+    travelFullPrice
+  ]
+});
+
+  // Generate .xlsx table and return it
+  const workbook = await initWorkbook('Звіт', getCarRecordsColumns(year, month));
+
+  const cellsList = cellsArray().slice(0, getDaysNumberInMonth(month) * 2)
+  for (let i = 1; i < cellsList.length; i+=2) {
+    const range = workbook.sheet(0).range(`${cellsList[i-1]}1:${cellsList[i]}1`);
+    range.style({horizontalAlignment: "center", verticalAlignment: "center", })
+    range.merged(true);
+  }
+
+  
+
+  if (dataByObjects.length) {
+    workbook.activeSheet().cell('A2').value(dataByObjects);
+  }
+
+  return workbook.outputAsync();
+}
+
 export async function getReportsByObjectsTable(year: number, month: number) {
   const reports = await getReports(year, month);
 
   const reportsByObjects = groupByObjects(reports);
 
+  const carRecordsByMonth = await getCarRecordsByMonth(year, month)
+  const carPriceByObject = groupCarRecordsFullPriceByKey(carRecordsByMonth);
+
+
   const dataByObjects = _.map(reportsByObjects, reportsByObject => [
     reportsByObject[0].objectCity + ', ' + reportsByObject[0].objectAddress,
     getHoursTotal(reportsByObject),
     getSalary(reportsByObject),
+    getCarFeeTotal(reportsByObject),
+    getSalary(reportsByObject) + getCarFeeTotal(reportsByObject),
     getBusinessTripPayment(reportsByObject),
+    (carPriceByObject[reportsByObject[0].objectId] || 0).toFixed(2),
     reportsByObject[0].contractorName,
   ]);
 

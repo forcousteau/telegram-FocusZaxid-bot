@@ -6,9 +6,8 @@ export const addAttributesToWorkShiftsActions = workShiftsActions =>
     workShiftAction.objectName += workShiftAction.objectAddress ? `, ${workShiftAction.objectAddress}` : '';
     workShiftAction.createdAtDate = workShiftAction.createdAt;
     workShiftAction.createdAt = new Date(workShiftAction.createdAt).toLocaleString('uk-UA');
-    workShiftAction.businessTrip = workShiftAction.businessTrip ? 'Так' : 'Ні';
-    workShiftAction.car = getCarStringForTable(workShiftAction);
+    workShiftAction.businessTrip = getBusinessTripStringForTable(workShiftAction);
   });
 
-export const getCarStringForTable = workShiftAction =>
-  workShiftAction.typeId === WorkShiftActionType.OPEN ? 'Див. закриття зміни' : workShiftAction.car ? 'Так' : 'Ні';
+  export const getBusinessTripStringForTable = workShiftAction =>
+  workShiftAction.typeId === WorkShiftActionType.OPEN ? 'Див. закриття зміни' : workShiftAction.businessTrip ? 'Так' : 'Ні';

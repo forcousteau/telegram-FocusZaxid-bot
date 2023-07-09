@@ -92,6 +92,7 @@ const Routes = {
     router.get('/api/reports/byEmployees', this.getAuthCheckedHandler(reportsHandlers.byEmployees.read));
     router.get('/api/reports/byContractors', this.getAuthCheckedHandler(reportsHandlers.byContractors.read));
     router.get('/api/reports/byObjects', this.getAuthCheckedHandler(reportsHandlers.byObjects.read));
+    router.get('/api/reports/byCars', this.getAuthCheckedHandler(reportsHandlers.byCars.read));
 
     /*** Location checks ***/
     router.post('/api/locationChecks', this.getAuthCheckedHandler(locationChecksHandlers.create));

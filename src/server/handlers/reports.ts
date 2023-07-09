@@ -7,6 +7,7 @@ import {
   getReportsByEmployeesTable,
   getReportsByContractorsTable,
   getReportsByObjectsTable,
+  getReportsByCarRecordsTable,
 } from '../../excel/tables/reports';
 
 const COLON_ESCAPED = '%27';
@@ -152,6 +153,29 @@ const handlers = {
       }
     },
   },
+  byCars: {
+    read: async ctx => {
+      const {year, month} = ctx.query;
+
+      if(!year || !month) {
+        return (ctx.status = 400);
+      }
+
+      try {
+        const reportsByCarRecordsTable = await getReportsByCarRecordsTable(+year, +month);
+        ctx.set(
+          'Content-disposition',
+          `attachment; filename*=UTF-8''${encodeURIComponent(`Звіт по автомобілях.xlsx`).replace(/'/g, COLON_ESCAPED)}`
+        );
+        ctx.set('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        ctx.body = bufferToStream(reportsByCarRecordsTable);
+        ctx.status = 200;
+      } catch (err) {
+        console.error(err);
+        ctx.status = 500;
+      }
+    }
+  }
 };
 
 export default handlers;

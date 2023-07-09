@@ -26,7 +26,7 @@ export async function getWorkShiftsActionsTable(year: number, month: number) {
       workShiftAction.location,
       workShiftAction.workShiftTypeName,
       workShiftAction.createdAt,
-      workShiftAction.car,
+      workShiftAction.carName,
       workShiftAction.businessTrip,
     ],
   ]);

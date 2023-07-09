@@ -82,6 +82,7 @@ const Settings: React.FC = () => {
             petrolPrice: vars?.find((v) => v.name === "petrolPrice")?.value,
             dieselPrice: vars?.find((v) => v.name === "dieselPrice")?.value,
             gasPrice: vars?.find((v) => v.name === "gasPrice")?.value,
+            electroPrice: vars?.find((v) => v.name === "electroPrice")?.value,
           }}
           onFinish={onSubmit}
         >
@@ -168,6 +169,18 @@ const Settings: React.FC = () => {
               {
                 required: true,
                 message: "Необхідно встановити ціну газу",
+              },
+            ]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="electroPrice"
+            label="Вартість 1кВ електроенергії"
+            rules={[
+              {
+                required: true,
+                message: "Необхідно встановити ціну електроенергії",
               },
             ]}
           >

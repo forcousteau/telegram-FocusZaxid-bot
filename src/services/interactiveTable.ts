@@ -20,9 +20,10 @@ const COLUMNS_AFTER_WORKING_HOURS = [
   'Сума годин',
   'Відрядження',
   'Зарплата',
+  'За доїзд',
   "Відрядження (разом за всіма об'єктами)",
   "Зарплата (разом за всіма об'єктами)",
-  "Автомобіль (кіл-ть днів разом за всіма об'єктами)",
+  "За доїзд разом",
 ];
 
 const ADDITIONAL_PAYMENTS = [
@@ -77,9 +78,10 @@ async function getEmployeesDataForInteractiveTable(year: number, month: number) 
           getHoursTotal(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
           getBusinessTripPayment(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
           getSalary(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
+          reportByObjectByEmployee.carFee.toFixed(MONEY_DECIMAL_PLACES),
           reportByObjectByEmployee.businessTripPaymentTotal.toFixed(MONEY_DECIMAL_PLACES),
           reportByObjectByEmployee.salaryTotal.toFixed(MONEY_DECIMAL_PLACES),
-          reportByObjectByEmployee.carReportDays.toFixed(MONEY_DECIMAL_PLACES),
+          reportByObjectByEmployee.carFeeSumForReport.toFixed(MONEY_DECIMAL_PLACES),
         ],
         recordsWorkingHours: getDatesHours(reportsByObjectByEmployee, month),
         recordsAdditionalPayments: getAdditionalPaymentsValues(

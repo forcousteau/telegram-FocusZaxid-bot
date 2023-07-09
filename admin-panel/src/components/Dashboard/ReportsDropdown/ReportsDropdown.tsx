@@ -37,6 +37,10 @@ const ReportsDropdown: React.FC = () => {
 	  title: 'По об\'єктах'
 	},
 	{
+		type: 'byCars',
+		title: 'По автомобілях'
+	},
+	{
 	  type: 'byContractors',
 	  title: 'По виконробах'
 	},
