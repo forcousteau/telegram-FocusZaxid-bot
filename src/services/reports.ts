@@ -63,8 +63,9 @@ export async function getReportsByWorkShiftsActions(workShiftsActions, workingHo
 
       const carFee = 
       workShiftAction.typeId === WorkShiftActionType.OPEN
-          ? Number(workShiftAction.carFee) || 0
-          : Number(workShiftAction.carFee) + Number(workShiftActionPrev.carFee)
+          ? Number(workShiftAction?.carFee || 0)
+          : Number(workShiftAction?.carFee || 0) + Number(workShiftActionPrev?.carFee || 0)
+
               
       if (!_.isNil(hours)) {
         const workingHoursChange = workingHoursChanges.find(
@@ -268,7 +269,7 @@ export function consolidateReportsByDays(reports) {
         const consolidatedReport = reportsByEmployeeByObjectByWorkedDay.reduce((consolidatedReport, report) => ({
           ...consolidatedReport,
           hours: consolidatedReport.hours + report.hours,
-          carFee: consolidatedReport.carFee + report.carFee
+          carFee: Number(consolidatedReport.carFee || 0) + Number(report.carFee || 0)
         }));
 
         consolidatedReportsByDays.push({
@@ -329,17 +330,16 @@ export const groupByEmployees = arr =>
     }, {});
 
 export const groupByTravelDate = (carRecords, month) => {
-
       return carRecords
       .reduce((monthData, record) => {
-        const { fuelPrice, distance , travelDate} = record;
+        const { fuelPrice, distance , travelDate, fuelConsumption} = record;
     
         const travelDay = travelDate.getDate() - 1;
     
         if(!monthData[travelDay]){
           monthData[travelDay] = {
             dayDistance: Number(distance) + Number(distance),
-            dayFuelPrice: Number(fuelPrice)
+            dayFuelPrice:((Number(fuelConsumption)/ 100) * Number(fuelPrice)).toFixed(2)
           };
         } else {
           monthData[travelDay].dayDistance += Number(distance) + Number(distance);      

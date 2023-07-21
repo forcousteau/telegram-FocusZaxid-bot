@@ -11,7 +11,7 @@ export async function daemon(bot) {
     for (const employee of employees) {
       await bot.telegram.sendMessage(
         employee.chatId,
-        'Компанія Террапроф вітає вас з днем народження!',
+        'Компанія ФОКУС-ЗАХІД вітає вас з днем народження!',
         HomeMessage.keyboard.extra()
       );
     }

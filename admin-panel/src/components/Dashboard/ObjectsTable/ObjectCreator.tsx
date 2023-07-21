@@ -90,9 +90,9 @@ const ObjectCreator: React.FC<IProps> = (props) => {
 
 		<Form.Item
 		  name="address"
-		  label="Адреса"
+		  label="Назва"
 		>
-		  <Input placeholder="Введіть адресу"/>
+		  <Input placeholder="Введіть назву"/>
 		</Form.Item>
 
 		<Form.Item

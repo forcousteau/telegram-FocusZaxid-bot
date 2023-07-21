@@ -1,5 +1,5 @@
 import { ONE_HOUR } from '../../constants';
-import { getVars, updateVar, updateVarByName } from '../../services/vars';
+import { updateVarByName } from '../../services/vars';
 import axios from 'axios';
 import _ from 'lodash';
 

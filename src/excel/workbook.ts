@@ -141,10 +141,10 @@ export const styleSheetWidth = (sheet, columns) =>
 export const styleSheetIsWeekend = (sheet, columns) =>
   columns.forEach((item, index) =>
     sheet
-      .row(1)
-      .cell(index + 1)
+      .column(index+1)
       .style({
-        fill: item?.isWeekend ? 'cccccc' : null,
+        border:true,
+        fill: !!item?.isWeekend ? 'cccccc' : 0,
       })
   );
 

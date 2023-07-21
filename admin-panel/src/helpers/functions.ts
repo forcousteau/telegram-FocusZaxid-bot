@@ -44,8 +44,7 @@ export const range = (from, to) => {
 };
 
 export const isWeekend = ({ day, month, year }) => {
-  // const date = new Date(year, month, day);
-  // // 6 - Saturday, 0 - Sunday
-  // return [6, 0].includes(date.getDay());
-  return false;
+  const date = new Date(year, month, day);
+  // 6 - Saturday, 0 - Sunday
+  return [6, 0].includes(date.getDay());
 };

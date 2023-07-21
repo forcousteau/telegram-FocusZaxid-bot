@@ -294,7 +294,9 @@ export async function getReportsByCarRecordsTable(year: number, month: number) {
 });
 
   // Generate .xlsx table and return it
-  const workbook = await initWorkbook('Звіт', getCarRecordsColumns(year, month));
+  const columns = getCarRecordsColumns(year, month);
+  const workbook = await initWorkbook('Звіт', columns);
+  styleSheetIsWeekend(workbook.activeSheet(), columns);
 
   const cellsList = cellsArray().slice(0, getDaysNumberInMonth(month) * 2)
   for (let i = 1; i < cellsList.length; i+=2) {

@@ -66,7 +66,7 @@ const ObjectsTable: React.FC = () => {
 
   const columns = [
     {
-      title: "Адреса",
+      title: "Назва",
       dataIndex: "address",
       key: "address",
       sorter: (a, b) => a.address.localeCompare(b.address),

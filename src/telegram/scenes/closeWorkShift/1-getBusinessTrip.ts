@@ -11,7 +11,7 @@ scene.backScene = WorkShiftMessage;
 scene.nextScene = 'closeWorkShift/getLocation';
 
 scene.enter(async (ctx: any) => {
-  const selectedObject = await getObjectById(ctx.session.openWorkShift.objectId);
+  const selectedObject = await getObjectById(ctx.session.closeWorkShift?.objectId);
   if (selectedObject.isDriveCompensated) {
     const keyboard = Markup.inlineKeyboard(
       [

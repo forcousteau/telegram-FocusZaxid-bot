@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
@@ -39,9 +38,8 @@ export const isToday = date => {
 };
 
 export const isWeekend = date => {
-  // const day = date.getDay();
-  // return day === 6 || day === 0;
-  return false;
+  const day = date.getDay();
+  return day === 6 || day === 0;
 };
 
 export const isSunday = date => {

@@ -10,6 +10,7 @@ import {
   getBusinessTripPayment,
   getAdditionalPaymentsValues,
   groupByObjectsByEmployees,
+  getCarFeeTotal,
 } from './reports';
 
 const MONEY_DECIMAL_PLACES = 2;
@@ -78,7 +79,7 @@ async function getEmployeesDataForInteractiveTable(year: number, month: number) 
           getHoursTotal(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
           getBusinessTripPayment(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
           getSalary(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
-          reportByObjectByEmployee.carFee.toFixed(MONEY_DECIMAL_PLACES),
+          getCarFeeTotal(reportsByObjectByEmployee).toFixed(MONEY_DECIMAL_PLACES),
           reportByObjectByEmployee.businessTripPaymentTotal.toFixed(MONEY_DECIMAL_PLACES),
           reportByObjectByEmployee.salaryTotal.toFixed(MONEY_DECIMAL_PLACES),
           reportByObjectByEmployee.carFeeSumForReport.toFixed(MONEY_DECIMAL_PLACES),
